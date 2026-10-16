@@ -1,0 +1,21 @@
+pub mod error;
+pub mod models;
+pub mod session;
+pub mod url;
+pub mod transport;
+pub mod utils;
+pub mod ffi;
+pub mod tls;
+pub mod curl_impersonate;
+pub mod libcurl_impersonate;
+pub mod client;
+pub mod dns;
+
+pub use error::{RequestsError, Result};
+pub use models::{Request, Response, RequestParams, FileUpload, FfiRequestInput, FfiResponseOutput};
+pub use session::Session;
+pub use client::HttpClient;
+pub use curl_impersonate::BrowserProfile;
+pub use url::{UrlWrapper, Params, Headers, Values, Files, FilePart};
+pub use transport::{TransportConfig, H2Settings, H2PriorityParam, H2PriorityFrame, TLSExtensions, JA3Fingerprint, JA3Parsed};
+pub use utils::{encode_uri_component, encode_uri, md5, sha1, sha256, hmac_sha256, rc4};

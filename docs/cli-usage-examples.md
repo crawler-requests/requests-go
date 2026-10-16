@@ -1,6 +1,6 @@
-# requests-go CLI 跨语言调用示例
+# requests CLI 跨语言调用示例
 
-requests-go CLI 通过 JSON stdin/stdout 与任何编程语言交互。
+requests CLI 通过 JSON stdin/stdout 与任何编程语言交互。
 
 ## 基本模式
 
@@ -18,10 +18,10 @@ import subprocess
 import json
 
 def requests_go(method, url, **kwargs):
-    """调用 requests-go CLI 发起 HTTP 请求"""
+    """调用 requests CLI 发起 HTTP 请求"""
     input_data = {"method": method, "url": url, **kwargs}
     result = subprocess.run(
-        ["./requests-go", "request", "--json", json.dumps(input_data)],
+        ["./requests", "request", "--json", json.dumps(input_data)],
         capture_output=True, text=True
     )
     if result.returncode != 0:
@@ -42,7 +42,7 @@ const { spawn } = require('child_process');
 function requestsGo(method, url, opts = {}) {
   return new Promise((resolve, reject) => {
     const input = JSON.stringify({ method, url, ...opts });
-    const child = spawn('./requests-go', ['request', '--json', input]);
+    const child = spawn('./requests', ['request', '--json', input]);
     let stdout = '', stderr = '';
     child.stdout.on('data', d => stdout += d);
     child.stderr.on('data', d => stderr += d);
@@ -68,7 +68,7 @@ require 'open3'
 def requests_go(method, url, **opts)
   input = { method: method, url: url }.merge(opts).to_json
   stdout, stderr, status = Open3.capture3(
-    './requests-go', 'request', '--json', input
+    './requests', 'request', '--json', input
   )
   raise stderr unless status.success?
   JSON.parse(stdout)
@@ -94,7 +94,7 @@ public class RequestsGo {
             e -> input.add(e.getKey(), e.getValue()));
 
         ProcessBuilder pb = new ProcessBuilder(
-            "./requests-go", "request", "--json", input.toString());
+            "./requests", "request", "--json", input.toString());
         Process p = pb.start();
 
         String stdout = new String(p.getInputStream().readAllBytes());
@@ -118,7 +118,7 @@ fn requests_go(method: &str, url: &str, opts: Option<Value>) -> Result<Value, St
         input.as_object_mut().unwrap().extend(o.as_object().unwrap().clone());
     }
 
-    let output = Command::new("./requests-go")
+    let output = Command::new("./requests")
         .args(["request", "--json", &input.to_string()])
         .output()
         .map_err(|e| e.to_string())?;
@@ -138,7 +138,7 @@ function requests_go(string $method, string $url, array $opts = []): array {
         ['method' => $method, 'url' => $url], $opts
     ));
     $process = proc_open(
-        ['./requests-go', 'request', '--json', $input],
+        ['./requests', 'request', '--json', $input],
         [1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
         $pipes
     );

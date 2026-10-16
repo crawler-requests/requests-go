@@ -1,20 +1,28 @@
-# Binaries for programs and plugins
-*.exe
-*.exe~
-*.h
-*.dll
-*.so
-*.dylib
+# Rust / Cargo build output (2.4G cache — never commit)
+/target/
+**/*.rs.bk
+*.pdb
 
-# Test binary, built with `go test -c`
+# 构建脚本中间产物
+/dist/
+*.o
+
+# 临时评估报告
+analysis-report.md
+
+# TLS 测试密钥（私钥绝不上传）
+server.crt
+server.key
+
+# 编辑器 / 系统
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# 测试输出
 *.test
-
-# Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
-# Dependency directories (remove the comment below to include it)
-# vendor/
-
-# edit file
-.idea/
-.gocache/
+# 注意：libs_dist/ 下的分发二进制（CLI / .so / libcurl-impersonate）
+# 是本仓库的交付物（80+ 语言 wrapper 从这里拷贝），必须跟踪，不要在此忽略。

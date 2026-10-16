@@ -1,0 +1,17 @@
+[workspace]
+resolver = "2"
+members = [
+    "rust/requests-core",
+    "rust/requests-cli",
+]
+default-members = ["rust/requests-core"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+authors = ["wangluozhe"]
+license = "GPL-3.0"
+repository = "https://github.com/wangluozhe/requests"
+
+[workspace.dependencies]
+requests-core = { path = "rust/requests-core" }

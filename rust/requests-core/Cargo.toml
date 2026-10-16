@@ -1,0 +1,63 @@
+[package]
+name = "requests-core"
+version = "0.1.0"
+edition = "2021"
+authors = ["wangluozhe"]
+description = "A powerful HTTP client library in Rust, ported from golang-requests"
+
+[lib]
+name = "requests_core"
+crate-type = ["cdylib", "staticlib", "rlib"]
+
+[dependencies]
+rand = { version = "0.8", features = ["std", "std_rng"] }
+# Async runtime
+tokio = { version = "1", features = ["full"] }
+tokio-util = "0.7"
+futures-util = "0.3"
+
+# HTTP client
+reqwest = { version = "0.12", features = ["json", "cookies", "multipart", "rustls-tls", "gzip", "brotli", "deflate", "socks", "stream", "native-tls"] }
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# URL handling
+url = "2"
+
+# Error handling
+thiserror = "1"
+anyhow = "1"
+
+# Cryptography
+rustls = { version = "0.23", features = ["std"] }
+webpki-roots = "0.26"
+ring = "0.17"
+sha1 = "0.11"
+sha2 = "0.10"
+md5 = "0.7"
+hmac = "0.12"
+
+# Compression
+flate2 = "1"
+brotli = "3"
+base64 = "0.22"
+
+# Time
+chrono = "0.4"
+
+# UUID
+uuid = { version = "1", features = ["v4"] }
+
+# For FFI and libcurl-impersonate
+libc = "0.2"
+libloading = "0.8"
+
+[dev-dependencies]
+tokio-test = "0.4"
+
+[features]
+default = ["rustls"]
+native-tls = ["reqwest/native-tls"]
+rustls = ["reqwest/rustls-tls"]
