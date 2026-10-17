@@ -170,6 +170,31 @@ fn candidate_paths() -> Vec<PathBuf> {
         }
     }
     base_dirs.extend(scan_dirs);
+
+    // ~/.cache/requests/v*/{os}-{arch}/ — where the bootstrap downloader
+    // (scripts/requests-cli-bootstrap.sh) places the CLI plus libcurl from the
+    // GitHub Release. Enumerate all cached versions so a fresh wrapper that only
+    // downloaded via the release still finds libcurl next to its CLI.
+    if let Ok(home) = std::env::var("HOME") {
+        let cache_root = PathBuf::from(home).join(".cache/requests");
+        if let Ok(rd) = std::fs::read_dir(&cache_root) {
+            for v in rd.flatten() {
+                let vdir = v.path();
+                if !vdir.is_dir() {
+                    continue;
+                }
+                if let Ok(arch_dir) = std::fs::read_dir(&vdir) {
+                    for a in arch_dir.flatten() {
+                        let adir = a.path();
+                        if adir.is_dir() {
+                            base_dirs.push(adir.clone());
+                            base_dirs.push(adir.join("libs_dist"));
+                        }
+                    }
+                }
+            }
+        }
+    }
     for name in [
         "libcurl-impersonate.so",
         "libcurl-impersonate.so.4",

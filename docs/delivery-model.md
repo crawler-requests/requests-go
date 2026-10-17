@@ -73,11 +73,25 @@
 4. **全量 100 仓库**推广模板，更新 README 的安装段。
 5. **自编译路径**保留在 `build-*.sh` 作为兜底，并文档化"为何默认 Release"。
 
+## 已验证 / 进行中（2026-10-17）
+
+**已验证：**
+- ✅ GitHub Release **v0.1.0 已创建**（`crawler-requests/requests-go`，tag 指向 Rust 引擎 HEAD），资产：`requests-cli-linux-amd64`、`requests-linux-amd64.so`、`libcurl-impersonate.so.4.8.0`、`SHA256SUMS`。
+- ✅ 权威下载器 `scripts/requests-cli-bootstrap.sh`（bash 版）：env 覆盖 → 本地 cache → Release 下载 → 自编译兜底，链路逻辑正确。
+- ✅ `create_all_wrappers.py` 的 bash 模板已升级为 `_ensure_requests_cli`（缓存 + Release + 自编译），已重生成并提交到 **requests-c** 仓库（`lib/requests.sh`）。
+- ✅ Release 资产 URL 可达、内容完整（curl 实测可下载，仅带宽约 450KB/s）。
+
+**进行中 / 未完成：**
+- ⏳ 隔离 HOME 完整下载链路端到端（受当前网络带宽限制慢，后台验证中）。
+- ⏳ 模板推广到全部 100 仓库（脚本已就绪，需逐个 regenerate + commit）。
+- ⏳ python/node 语言特定接入（懒下载钩子）未实现。
+
 ## 待验证风险
 
 - windows/macos 的 libcurl 预编译资产缺失 → 首版只保证 linux；wrapper 在非 linux 平台收到 404 时应明确报错而非静默（除非走自编译）。
 - GitHub API 下载限流（未认证 60 req/h）——懒下载是低频操作，缓存后不重复请求，风险低；但批量测试 100 仓库同时首启会撞限流，测试脚本需串行/复用缓存。
 - 二进制进 git 的现有 libs_dist 是否还保留：**建议保留**（零配置开发体验，本地已就位），但文档标注"开发用，生产用 Release"。
+- **网络带宽是本机到 GitHub 的瓶颈**（~450KB/s，8.4MB CLI 需 ~20s，但受 TCP 波动可能卡死）→ 下载器应加 `--connect-timeout` / `--max-time` 与断点重试，避免 curl 永久挂起。
 
 ## 决策摘要
 
