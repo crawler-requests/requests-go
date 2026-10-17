@@ -125,16 +125,51 @@ fn candidate_paths() -> Vec<PathBuf> {
     let exe_dir = std::env::current_exe().ok().and_then(|p| {
         p.parent().map(|d| d.to_path_buf())
     });
+
+    // Also walk up the ancestor directories of the executable and the cwd.
+    // Wrapper repos keep the CLI at libs/requests-cli-* and rely on the shared
+    // engine repo's libs_dist/ (found several levels up, e.g. ../../requests/libs_dist),
+    // so a plain exe_dir + cwd probe would miss it.
     let mut base_dirs: Vec<PathBuf> = Vec::new();
-    if let Some(d) = exe_dir {
-        base_dirs.push(d.clone());
-        base_dirs.push(d.join("libs_dist"));
+    for dir in [&exe_dir, &cwd] {
+        let mut cur = dir.clone();
+        for _ in 0..5 {
+            if let Some(d) = &cur {
+                base_dirs.push(d.clone());
+                base_dirs.push(d.join("libs_dist"));
+            }
+            cur = cur.and_then(|d| d.parent().map(|p| p.to_path_buf()));
+        }
     }
-    if let Some(d) = cwd {
-        base_dirs.push(d.clone());
-        base_dirs.push(d.join("libs_dist"));
-        base_dirs.push(d.join("../libs_dist"));
+    // Sibling-repo scan: a wrapper repo keeps the CLI locally (e.g. libs/requests-cli-*)
+    // while the actual libcurl-impersonate.so lives in a *sibling* requests-* repo's
+    // libs_dist/ (typically the engine repo). Walk up the ancestors again and, at each
+    // level, enumerate directories named like requests/requests-* looking for their
+    // libs_dist/. This makes every wrapper work out of the box with no env var.
+    let mut scan_dirs: Vec<PathBuf> = Vec::new();
+    for dir in [&exe_dir, &cwd] {
+        let mut cur = dir.clone();
+        for _ in 0..4 {
+            if let Some(parent) = &cur {
+                if let Ok(rd) = std::fs::read_dir(parent) {
+                    for entry in rd.flatten() {
+                        let p = entry.path();
+                        if p.is_dir() {
+                            let name = p.file_name().map(|n| n.to_string_lossy().to_string());
+                            if let Some(n) = name {
+                                if n == "requests" || n.starts_with("requests-") {
+                                    scan_dirs.push(p.join("libs_dist"));
+                                    scan_dirs.push(p.join("libs"));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            cur = cur.and_then(|d| d.parent().map(|p| p.to_path_buf()));
+        }
     }
+    base_dirs.extend(scan_dirs);
     for name in [
         "libcurl-impersonate.so",
         "libcurl-impersonate.so.4",
